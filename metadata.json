@@ -1,0 +1,5 @@
+{
+  "name": "Gemini Recipe Chef",
+  "description": "A smart recipe recommendation app that suggests delicious meals based on your ingredients and generates realistic food images with AI editing capabilities.",
+  "requestFramePermissions": []
+}
