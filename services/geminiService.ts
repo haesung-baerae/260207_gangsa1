@@ -6,19 +6,14 @@ import { GoogleGenAI } from "@google/genai";
  * This handles potential ReferenceErrors in browser environments where 'process' is not defined globally.
  */
 const getApiKey = (): string => {
-  try {
-    // We strictly use process.env.API_KEY as per instructions.
-    // Using a typeof check to prevent ReferenceError if 'process' is missing in the browser.
-    if (typeof process !== 'undefined' && process.env && process.env.API_KEY) {
-      return process.env.API_KEY;
-    }
-    // Check window if process is mapped there by some bundlers
-    if (typeof window !== 'undefined' && (window as any).process?.env?.API_KEY) {
-      return (window as any).process.env.API_KEY;
-    }
-  } catch (e) {
-    console.error("Error accessing process.env.API_KEY:", e);
+  // 브라우저에서도 접근 가능한 NEXT_PUBLIC_ 접두사를 사용합니다.
+  const key = process.env.NEXT_PUBLIC_API_KEY;
+  
+  if (key) {
+    return key;
   }
+  
+  console.warn("API Key is missing! Check your Vercel Environment Variables.");
   return '';
 };
 
