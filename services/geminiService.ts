@@ -6,14 +6,18 @@ import { GoogleGenAI } from "@google/genai";
  * This handles potential ReferenceErrors in browser environments where 'process' is not defined globally.
  */
 const getApiKey = (): string => {
-  // 브라우저에서도 접근 가능한 NEXT_PUBLIC_ 접두사를 사용합니다.
-  const key = process.env.NEXT_PUBLIC_API_KEY;
-  
-  if (key) {
-    return key;
+  try {
+    // 1. NEXT_PUBLIC_ 접두사가 붙은 키를 먼저 확인 (Vercel용)
+    if (process.env.NEXT_PUBLIC_API_KEY) {
+      return process.env.NEXT_PUBLIC_API_KEY;
+    }
+    // 2. 기존 API_KEY도 확인 (로컬 테스트용)
+    if (process.env.API_KEY) {
+      return process.env.API_KEY;
+    }
+  } catch (e) {
+    console.error("Error accessing API Key:", e);
   }
-  
-  console.warn("API Key is missing! Check your Vercel Environment Variables.");
   return '';
 };
 
