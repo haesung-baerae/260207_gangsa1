@@ -26,15 +26,20 @@ const App: React.FC = () => {
       const recipeText = await generateRecipe(ingredients);
       setRecipe(recipeText || '레시피를 생성할 수 없습니다.');
       
-      // Extract title from the first line for image generation
       const titleLine = recipeText?.split('\n')[0].replace(/[#*]/g, '').trim() || ingredients;
       
       setIsImageLoading(true);
-      const img = await generateFoodImage(titleLine);
-      if (img) setImageUrl(img);
-    } catch (error) {
-      console.error(error);
-      alert('오류가 발생했습니다. 다시 시도해주세요.');
+      try {
+        const img = await generateFoodImage(titleLine);
+        if (img) setImageUrl(img);
+      } catch (imgError) {
+        console.error("Image generation failed:", imgError);
+        // We don't alert here so the user can still see the text recipe
+      }
+    } catch (error: any) {
+      console.error("Recipe generation failed:", error);
+      const errorMsg = error.message || '알 수 없는 오류가 발생했습니다.';
+      alert(`레시피 생성 실패: ${errorMsg}\n\nVercel Dashboard에서 API_KEY가 설정되어 있는지 확인해주세요.`);
     } finally {
       setIsLoading(false);
       setIsImageLoading(false);
@@ -53,9 +58,9 @@ const App: React.FC = () => {
       } else {
         alert('이미지를 수정할 수 없었습니다.');
       }
-    } catch (error) {
-      console.error(error);
-      alert('이미지 수정 중 오류가 발생했습니다.');
+    } catch (error: any) {
+      console.error("Image edit failed:", error);
+      alert(`이미지 수정 실패: ${error.message}`);
     } finally {
       setIsEditing(false);
     }
@@ -178,7 +183,6 @@ const App: React.FC = () => {
             {/* Image Actions & Edit Prompt */}
             {imageUrl && !isImageLoading && (
               <div className="mt-8 w-full max-w-md flex flex-col gap-6">
-                {/* Save & Drive Buttons */}
                 <div className="flex gap-3">
                   <button
                     onClick={handleDownload}
@@ -202,7 +206,6 @@ const App: React.FC = () => {
                   </a>
                 </div>
 
-                {/* Edit Prompt */}
                 <div className="bg-gray-50 p-4 rounded-xl border border-gray-100">
                   <p className="text-sm font-bold text-gray-600 mb-3 flex items-center gap-1">
                     <span className="text-orange-400">✨</span> 이미지 수정 (AI Magic)
