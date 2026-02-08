@@ -7,20 +7,22 @@ import { GoogleGenAI } from "@google/genai";
  */
 const getApiKey = (): string => {
   try {
-    // 1. NEXT_PUBLIC_ 접두사가 붙은 키를 먼저 확인 (Vercel용)
-    if (process.env.NEXT_PUBLIC_API_KEY) {
-      return process.env.NEXT_PUBLIC_API_KEY;
+    // 클라이언트 사이드에서 실행되는 경우
+    if (typeof window !== 'undefined') {
+      const key = process.env.NEXT_PUBLIC_API_KEY;
+      if (key) return key;
     }
-    // 2. 기존 API_KEY도 확인 (로컬 테스트용)
-    if (process.env.API_KEY) {
-      return process.env.API_KEY;
-    }
+    
+    // 서버 사이드에서 실행되는 경우
+    const key = process.env.API_KEY || process.env.NEXT_PUBLIC_API_KEY;
+    if (key) return key;
+    
+    throw new Error('API_KEY not found in environment variables');
   } catch (e) {
     console.error("Error accessing API Key:", e);
+    throw e; // 빈 문자열 대신 에러를 던져서 문제를 명확히 함
   }
-  return '';
 };
-
 /**
  * Creates a new instance of the GoogleGenAI client.
  * Strictly uses the value from process.env.API_KEY.
