@@ -7,14 +7,31 @@ import { GoogleGenAI } from "@google/genai";
  */
 const getApiKey = (): string => {
   try {
-    // Vite 환경 변수는 import.meta.env로 접근
-    const key = import.meta.env.VITE_API_KEY;
-    
-    if (key) {
-      return key;
+    // import.meta.env 방식 (Vite 표준)
+    const viteKey = import.meta.env?.VITE_API_KEY;
+    if (viteKey) {
+      console.log('Using VITE_API_KEY from import.meta.env');
+      return viteKey;
     }
     
-    throw new Error('VITE_API_KEY not found in environment variables');
+    // process.env 방식 (define으로 주입된 값)
+    if (process.env.VITE_API_KEY) {
+      console.log('Using VITE_API_KEY from process.env');
+      return process.env.VITE_API_KEY;
+    }
+    
+    if (process.env.GEMINI_API_KEY) {
+      console.log('Using GEMINI_API_KEY from process.env');
+      return process.env.GEMINI_API_KEY;
+    }
+    
+    if (process.env.API_KEY) {
+      console.log('Using API_KEY from process.env');
+      return process.env.API_KEY;
+    }
+    
+    console.error('All API key sources failed');
+    throw new Error('API_KEY not found in any environment variables');
   } catch (e) {
     console.error("Error accessing API Key:", e);
     throw e;
